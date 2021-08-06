@@ -1,32 +1,17 @@
 const express = require("express");
-const bootcampController = require("./../controllers/bootcampController");
-const authController = require("./../controllers/authController");
+const bootcampsController = require("./../controllers/bootcampControllers");
 
-const Router = express.Router();
+const router = express.Router();
 
-Router.route("/")
-  .get(
-    authController.protect,
-    authController.restrictTo("publisher", "admin"),
-    bootcampController.getAllBootcamps
-  )
-  .post(
-    authController.protect,
-    authController.restrictTo("publisher", "admin"),
-    bootcampController.createBootcamp
-  );
+router
+  .route("/")
+  .get(bootcampsController.getAllBootcamps)
+  .post(bootcampsController.createBootcamp);
 
-Router.route("/:id")
-  .get(bootcampController.getBootcamp)
-  .patch(
-    authController.protect,
-    authController.restrictTo("publisher", "admin"),
-    bootcampController.updateBootcamp
-  )
-  .delete(
-    authController.protect,
-    authController.restrictTo("publisher", "admin"),
-    bootcampController.deleteBootcamp
-  );
+router
+  .route("/:id")
+  .get(bootcampsController.getBootcamp)
+  .patch(bootcampsController.updateBootcamp)
+  .delete(bootcampsController.deleteBootcamp);
 
-module.exports = Router;
+module.exports = router;

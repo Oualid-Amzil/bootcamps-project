@@ -1,14 +1,14 @@
-const APIFeatures = require("./../utils/apiFeatures");
 const Bootcamp = require("./../models/bootcampModel");
-const AppError = require("./../utils/appError");
 const catshAsync = require("./../utils/catshAsync");
+const AppError = require("./../utils/appError");
+const APIFeatures = require("./../utils/apiFeatures");
 
 exports.getAllBootcamps = catshAsync(async (req, res, next) => {
-  const features = new APIFeatures(Bootcamp.find(), req.query)
+  const features = new APIFeauters(Bootcamp.find(), req.query)
     .filter()
     .sort()
     .limitFields()
-    .pagination();
+    .paginations();
 
   const bootcamps = await features.query;
 
@@ -24,7 +24,7 @@ exports.getAllBootcamps = catshAsync(async (req, res, next) => {
 exports.createBootcamp = catshAsync(async (req, res, next) => {
   const newBootcamp = await Bootcamp.create(req.body);
 
-  res.status(201).json({
+  res.sttaus(201).json({
     status: "success",
     data: {
       bootcamp: newBootcamp,
@@ -36,7 +36,7 @@ exports.getBootcamp = catshAsync(async (req, res, next) => {
   const bootcamp = await Bootcamp.findById(req.params.id);
 
   if (!bootcamp) {
-    return next(new AppError("There is no bootcamp.", 404));
+    return next(new AppError("Ther no bootcamp with that ID.", 404));
   }
 
   res.status(200).json({
@@ -47,18 +47,18 @@ exports.getBootcamp = catshAsync(async (req, res, next) => {
   });
 });
 
-exports.updateBootcamp = catshAsync(async (req, res, next) => {
+exports.updatebootcamp = catshAsync(async (req, res, next) => {
   const freshBootcamp = await Bootcamp.findByIdAndUpdate(
     req.params.id,
     req.body,
     {
       new: true,
-      runvalidator: true,
+      runValidators: true,
     }
   );
 
-  if (!freshBootcamp) {
-    return next(new AppError("There is no bootcamp.", 404));
+  if (!bootcamp) {
+    return next(new AppError("Ther no bootcamp with that ID.", 404));
   }
 
   res.status(200).json({
@@ -69,11 +69,11 @@ exports.updateBootcamp = catshAsync(async (req, res, next) => {
   });
 });
 
-exports.deleteBootcamp = catshAsync(async (req, res, next) => {
+exports.delete = catshAsync(async (req, res, next) => {
   const bootcamp = await Bootcamp.findByIdAndDelete(req.params.id);
 
   if (!bootcamp) {
-    return next(new AppError("There is no bootcamp.", 404));
+    return next(new AppError("Ther no bootcamp with that ID.", 404));
   }
 
   res.status(204).json({

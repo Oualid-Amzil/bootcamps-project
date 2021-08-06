@@ -1,4 +1,4 @@
-const AppError = require("../utils/appError");
+const AppError = require("./../utils/appError");
 
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
@@ -10,39 +10,33 @@ const sendErrorDev = (err, res) => {
 };
 
 const handleCastErrorDB = (err) => {
-  const message = `Invalide ${err.path}: ${err.value}`;
+  const message = `Invalid ${err.path}: ${err.value}`;
+  return new AppError(message, 400);
+};
+
+const handleValidationErrorDB = (err) => {
+  const errorsMessage = Object.values(err.errors).map((el) => el.message);
+  const message = `Invalid input value. ${errorsMessage.join(". ")}`;
   return new AppError(message, 400);
 };
 
 const handleDuplicatedErrorDB = (err) => {
   const fieldName = Object.values(err.keyValue);
-  const message = `Duplicate field value entered: "${fieldName[0]}", Please try another One.`;
-
+  const message = `Duplicated input value. "${fieldName[0]}". Please try another one.`;
   return new AppError(message, 400);
 };
-
-const handleValidationErrorDB = (err) => {
-  const errors = Object.values(err.errors).map((el) => el.message);
-  const message = `Invalid input value. ${errors.join(". ")}`;
-
-  return new AppError(message, 400);
-};
-
-const handleJWTError = () =>
-  new AppError("Invalid Token. Please log in again", 401);
-
-const handleJWTExpiresError = () =>
-  new AppError("Token has expired. Please log in again.", 401);
 
 const sendErrorProd = (err, res) => {
   if (err.isOperational) {
     res.status(err.statusCode).json({
       status: err.status,
-      message: err.message,
+      message: err.massage,
     });
   } else {
-    res.status(500).json({
-      status: "error",
+    console.log(err);
+
+    res.status(200).json({
+      status: 500,
       message: "Something went very wrong.",
     });
   }
@@ -55,13 +49,11 @@ module.exports = (err, req, res, next) => {
   if (process.env.NODE_ENV === "development") {
     sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === "production") {
-    if (err.name === "CastError") err = handleCastErrorDB(err);
-    if (err.code === 11000) err = handleDuplicatedErrorDB(err);
-    if (err.name === "ValidationError") err = handleValidationErrorDB(err);
+    let error = err;
+    if (err.name === "CastError") error = handleCastErrorDB(err);
+    if (err.name === "validationError") error = handleValidationErrorDB(err);
+    if (err.code === 11000) error = handleDuplicatedErrorDB(err);
 
-    if (err.name === "JsonWebTokenError") err = handleJWTError();
-    if (err.name === "JsonExpiresError") err = handleJWTExpiresError();
-
-    sendErrorProd(err, res);
+    sendErrorProd(error, res);
   }
 };
